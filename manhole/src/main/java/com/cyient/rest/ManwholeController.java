@@ -5,9 +5,10 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.apache.catalina.core.ApplicationContext;
 import org.hibernate.SessionFactory;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.MediaType;
@@ -19,49 +20,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;  
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cyient.dao.ManholeDAO;
+import com.cyient.dao.ManholeRepository;
 import com.cyient.model.ManholeData;
-import com.cyient.model.sensorData;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("/operations")
+@RequestMapping("/Manhole")
 public class ManwholeController {
 	
 	
 	@Autowired
-	private ManholeDAO DAO;
+	private ManholeRepository manholeresp;
 	
-	JSONObject Success_string =  new JSONObject();
-
 	Gson gson = new Gson();
 	@GetMapping(path="/test", produces = "application/json")  
-	public String test(){ 
-		return "Working fine";	    	
+	public Iterable<ManholeData> test(){ 
+		return manholeresp.findByDataAndDeviceName("ctoc","kiran");	    	
 	}  
+
 	
 	@PostMapping(path="/push_data",consumes = "application/json")
-	public String update_data(@Valid @RequestBody sensorData data) {
+	public String update_data(@Valid @RequestBody ManholeData data) {
 		System.out.println(data);
-		try{
-			DAO.addData(data);
-			Success_string.put("status", "Data Added");
-		}
-		catch(Exception e)
-		{
-			
-		}
-        return Success_string.toString(); 
+		manholeresp.save(data);
+        return "Done"; 
 	}
 	
 	
 	@GetMapping(path="/getData", produces = "application/json")  
-	public List<sensorData> getSiteAccess()
+	public Iterable<ManholeData> getSiteAccess()
 	{ 	
-		return (List<sensorData>) DAO.getAllData();  	
+		return manholeresp.findAll();	    	
 	} 
 	
 }
